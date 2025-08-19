@@ -1,0 +1,11 @@
+{
+  "name": "AAPanel  Automation Client",
+  "version": "1.0.0",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^17.2.1"
+  }
+}
