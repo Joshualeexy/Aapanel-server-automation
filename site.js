@@ -1,38 +1,61 @@
-const router = require('express').Router();
-const { ap } = require('./aapanel');
-const { patchNginxConf } = require('./nginx');
+const ap = require('./aapanel'); // your helper already loads dotenv
 
-router.post('/add', async (req, res) => {
-  const { domain, aliases = [], php = 'PHP-83' } = req.body;
-  try {
-    await ap('/site?action=AddSite', {
-      domain: [domain, ...aliases].join('\n'),
-      root: `/www/wwwroot/${domain}`,
-      type: 'PHP', php, ftp:'false', db:'false'
-    });
-    res.json({ ok:true });
-  } catch (e) { res.status(500).json({ ok:false, message:e.message }); }
-});
+function baseFromDomain(host) {
+  return (host.split('.')[0] || host).replace(/[^a-z0-9_]/g, '_');
+}
 
-router.post('/ssl', async (req, res) => {
-  const { domain, names, email } = req.body; // names: [domain, 'www.domain']
-  try {
-    await ap('/acme?action=Apply', { domain, domains: JSON.stringify(names), auth_type:'http', email });
-    res.json({ ok:true });
-  } catch (e) { res.status(500).json({ ok:false, message:e.message }); }
-});
+function genPass(len = 18) {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#';
+  let s = ''; for (let i = 0; i < len; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return s;
+}
 
-router.post('/nginx-fix', async (req, res) => {
-  const { domain } = req.body;
+(async () => {
   try {
-    const conf = await ap('/site?action=GetNginxConfig', { domain });
-    const patched = patchNginxConf(conf?.config || '');
-    if (patched !== conf?.config) {
-      await ap('/site?action=SaveNginxConfig', { domain, config: patched });
-      await ap('/system?action=ServiceAdmin', { name:'nginx', type:'reload' });
+    const [, , domain, ...aliases] = process.argv;
+    if (!domain) {
+      console.error('Usage: node site_add_v2.js <domain> [alias1 alias2 ...]');
+      process.exit(1);
     }
-    res.json({ ok:true });
-  } catch (e) { res.status(500).json({ ok:false, message:e.message }); }
-});
 
-module.exports = router;
+    const host = domain;
+    const base = baseFromDomain(host);
+
+    const webname = JSON.stringify({
+      domain: `${host}\r`,
+      domainlist: [],
+      count: 0
+    });
+
+    const payload = {
+      webname,
+      port: 80,
+      type: 'PHP',
+      ps: base,                             // description = domain without extension
+      path: `/www/wwwroot/${base}`,         // site dir based on base name
+      ftp: 'false',
+      sql: 'MySQL',                                                                                            // create DB
+      codeing: 'utf8',
+      version: '83',                        // PHP 8.3 (v2 expects number string)
+      type_id: 0,
+      set_ssl: 0,
+      force_ssl: 0,
+      is_create_default_file: true,
+      datauser: base,       // db user
+      datapassword: genPass(18)             // db pass
+    };
+
+    const res = await ap('/v2/site?action=AddSite', payload);
+    console.log('✅ AddSite OK added', host);
+    console.log('Response:', res);
+  } catch (err) {
+    console.error('❌ AddSite failed');
+    if (err.response) {
+      console.error('Status:', err.response.status);
+      console.error('Body:', err.response.data);
+    } else {
+      console.error(err.message || err);
+    }
+    process.exit(1);
+  }
+})();
