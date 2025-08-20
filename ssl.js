@@ -1,5 +1,5 @@
-// ssl_install.js
-// Usage: node ssl_install.js example.com
+// ssl.js
+// Usage: node ssl.js example.com
 
 const ap = require('./aapanel');
 
@@ -26,9 +26,15 @@ const ap = require('./aapanel');
 
         if (resp && resp.status === 0) {
             console.log(`✅ SSL certificate requested & will auto-install for ${domain}`);
+
         } else {
             console.warn("⚠️ SSL request failed issue encountered check logs at ", resp.message.path);
         }
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        console.log("Enabling Force HTTPS...");
+        const forceResp = await ap("/v2/site?action=HttpToHttps", { siteName: domain });
+        console.log("Force HTTPS response:", forceResp);
+
     } catch (err) {
         console.error("❌ SSL installation failed");
         if (err.response) {
