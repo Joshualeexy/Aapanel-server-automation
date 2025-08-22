@@ -1,9 +1,10 @@
 // Orchestrates: dns -> site -> ssl -> quic-patch -> mail-domain -> mail DNS -> mailbox
 
-require('dotenv').config();
 const { spawn } = require('child_process');
 const path = require('path');
-
+require('dotenv').config({
+  path: path.resolve(__dirname, '.env')
+});
 const domain = process.argv[2];
 if (!domain) {
   console.error('Usage: aapanel-deploy <domain>');
@@ -13,7 +14,8 @@ if (!domain) {
 function runStep(label, file, args = []) {
   return new Promise((resolve) => {
     console.log(`\n=== ${label} ===`);
-    const scriptPath = path.resolve(__dirname, 'scripts', file);
+    const scriptPath = path.resolve(__dirname, 'src', 'scripts', file);
+    console.log(`Running: node ${scriptPath}`);
     const p = spawn(process.execPath, [scriptPath, ...args], { stdio: 'inherit' });
     p.on('close', (code) => {
       if (code === 0) {

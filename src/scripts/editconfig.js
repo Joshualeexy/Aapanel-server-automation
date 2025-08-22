@@ -5,7 +5,7 @@
 //   POST /files?action=GetFileBody  { path }
 //   POST /files?action=SaveFileBody { path, data, encoding }
 
-const ap = require("./aapanel"); 
+const ap = require("../aapanel"); 
 
 function getConfPath(domain) {
   if (!/^[a-z0-9.-]+$/i.test(domain)) {

@@ -1,8 +1,6 @@
 // aaPanel client (CommonJS)
 const crypto = require('crypto');
 const axios = require('axios');
-require('dotenv').config();
-
 const md5 = (s) => crypto.createHash('md5').update(String(s)).digest('hex');
 
 function sign(apiKey) {
