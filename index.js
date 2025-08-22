@@ -80,7 +80,7 @@ app.post('/api/provision', async (req, res) => {
 
     const confGet = await ap('/site?action=GetNginxConfig', { domain });
     const patched = patchNginxConf(confGet?.config || '');
-    if (patched !== confGet?.config) {
+    if (patched !== confGet?.config) {S
       await ap('/site?action=SaveNginxConfig', { domain, config: patched });
       await ap('/system?action=ServiceAdmin', { name: 'nginx', type: 'reload' });
       summary.steps.push('nginx.patch+reload');
