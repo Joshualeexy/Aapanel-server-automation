@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "bin": {
-    "aapanel-deploy": "index.js"
+    "aapanel-deploy": "./bin/aapanel-deploy"
   },
   "type": "commonjs",
   "dependencies": {
