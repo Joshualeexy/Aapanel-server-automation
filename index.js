@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 // Orchestrates: dns -> site -> ssl -> quic-patch -> mail-domain -> mail DNS -> mailbox
 
 require('dotenv').config();
@@ -7,14 +6,15 @@ const path = require('path');
 
 const domain = process.argv[2];
 if (!domain) {
-  console.error('Usage: node index.js <domain>');
+  console.error('Usage: aapanel-deploy <domain>');
   process.exit(1);
 }
 
 function runStep(label, file, args = []) {
   return new Promise((resolve) => {
     console.log(`\n=== ${label} ===`);
-    const p = spawn(process.execPath, [path.resolve(__dirname, file), ...args], { stdio: 'inherit' });
+    const scriptPath = path.resolve(__dirname, 'scripts', file);
+    const p = spawn(process.execPath, [scriptPath, ...args], { stdio: 'inherit' });
     p.on('close', (code) => {
       if (code === 0) {
         console.log(`✅ ${label} — done`);
@@ -28,7 +28,6 @@ function runStep(label, file, args = []) {
 }
 
 (async () => {
-  // Stop on first failure to keep things clean
   if (!await runStep('Add domain to DNS Manager', 'dns.js', [domain])) process.exit(1);
   if (!await runStep('Add domain to Website section', 'site.js', [domain])) process.exit(1);
   if (!await runStep('Install & Deploy SSL (Let’s Encrypt)', 'ssl.js', [domain])) process.exit(1);
