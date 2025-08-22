@@ -1,11 +1,22 @@
 {
-  "name": "AAPanel  Automation Client",
+  "name": "aapanel-deploy",
   "version": "1.0.0",
-  "keywords": [],
+  "description": "CLI tool to provision domains on aaPanel (DNS, site, SSL, mail, mailbox)",
+  "keywords": [
+    "aapanel",
+    "automation",
+    "deploy",
+    "cli",
+    "provision"
+  ],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "bin": {
+    "aapanel-deploy": "index.js"
+  },
+  "type": "commonjs",
   "dependencies": {
-    "dotenv": "^17.2.1"
+    "dotenv": "^17.2.1",
+    "axios": "^1.7.2"
   }
 }

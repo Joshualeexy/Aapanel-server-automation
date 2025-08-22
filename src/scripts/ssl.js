@@ -1,7 +1,7 @@
 // ssl.js
 // Usage: node ssl.js example.com
 
-const ap = require('./aapanel');
+const ap = require('../aapanel');
 
 (async () => {
     try {

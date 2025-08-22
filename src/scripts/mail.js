@@ -3,7 +3,7 @@
 
 require('dotenv').config();
 const crypto = require('crypto');
-const ap = require('./aapanel'); // your signed aaPanel request helper
+const ap = require('../aapanel'); // your signed aaPanel request helper
 
 function md5(str) {
   return crypto.createHash('md5').update(str).digest('hex');

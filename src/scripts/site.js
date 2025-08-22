@@ -1,4 +1,4 @@
-const ap = require('./aapanel'); // your helper already loads dotenv
+const ap = require('../aapanel'); // your helper already loads dotenv
 
 function baseFromDomain(host) {
   return (host.split('.')[0] || host).replace(/[^a-z0-9_]/g, '_');
