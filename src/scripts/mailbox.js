@@ -21,7 +21,7 @@ function capFirst(s) { return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase
 
         const payload = {
             full_name: `${base} Support`,
-            quota: '500 MB',
+            quota: process.env.MAILBOX_QUOTA || '500 MB',
             is_admin: 0,
             username: `support@${domain}`,
             password: `${base}${year}$$`,

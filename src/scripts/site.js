@@ -6,24 +6,28 @@ function baseFromDomain(host) {
 
 function genPass(len = 18) {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#';
-  let s = ''; for (let i = 0; i < len; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  let s = '';
+  for (let i = 0; i < len; i++) s += chars[Math.floor(Math.random() * chars.length)];
   return s;
 }
 
 (async () => {
   try {
-    const [, , domain, ...aliases] = process.argv;
+    const [, , domain] = process.argv;
     if (!domain) {
-      console.error('Usage: node site_add_v2.js <domain> [alias1 alias2 ...]');
+      console.error('Usage: node site_add_v2.js <domain>');
       process.exit(1);
     }
 
     const host = domain;
     const base = baseFromDomain(host);
 
+    // Always add www.<domain>
+    const domainlist = [`www.${host}`];
+
     const webname = JSON.stringify({
       domain: `${host}\r`,
-      domainlist: [],
+      domainlist,
       count: 0
     });
 
@@ -31,23 +35,24 @@ function genPass(len = 18) {
       webname,
       port: 80,
       type: 'PHP',
-      ps: base,                             // description = domain without extension
-      path: `/www/wwwroot/${base}`,         // site dir based on base name
+      ps: base,
+      path: `/www/wwwroot/${base}`,
       ftp: 'false',
-      sql: 'MySQL',                                                                                            // create DB
+      sql: 'MySQL',
       codeing: 'utf8',
-      version: '83',                        // PHP 8.3 (v2 expects number string)
+      version: process.env.PHP_VERSION || '83',  // PHP version (default: 8.3)
       type_id: 0,
-      set_ssl: 0,
-      force_ssl: 0,
+      set_ssl: 0,                 // let ssl.js handle SSL
+      force_ssl: 0,               // force HTTPS will be done in ssl.js
       is_create_default_file: true,
-      datauser: base,       // db user
-      datapassword: genPass(18)             // db pass
+      datauser: base,
+      datapassword: genPass(18)
     };
 
     const res = await ap('/v2/site?action=AddSite', payload);
-    console.log('✅ AddSite OK added', host);
+    console.log(`✅ AddSite OK, added ${host} and alias www.${host}`);
     console.log('Response:', res);
+
   } catch (err) {
     console.error('❌ AddSite failed');
     if (err.response) {

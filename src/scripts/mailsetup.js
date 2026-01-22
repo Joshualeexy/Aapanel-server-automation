@@ -2,7 +2,7 @@
 // Adds MX (@), SPF (@), DKIM (default._domainkey), DMARC (_dmarc)
 
 const ap = require('../aapanel');
-const TTL = 600;
+const TTL = parseInt(process.env.DNS_DEFAULT_TTL, 10) || 600;
 
 function isOK(r) {
   if (!r) return false;
@@ -25,7 +25,7 @@ async function fileGet(path) {
 async function getDKIM(domain) {
   const base = `/www/server/dkim/${domain}/default.pub`;
   const raw = await fileGet(base);
-  s = String(raw);
+  const s = String(raw);
   const m = /p\s*=\s*([A-Za-z0-9+/=]+)/i.exec(s);
   if (m) return `v=DKIM1; k=rsa; ${m[0]}`;
 

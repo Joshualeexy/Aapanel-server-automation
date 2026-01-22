@@ -30,11 +30,13 @@ function toForm(data) {
  * @param {object} opts - { baseURL, apiKey, timeout, axios: { ...axiosConfig } }
  */
 async function ap(endpoint, data = {}, opts = {}) {
-    const baseURL = process.env.AAPANEL_URL.replace(/\/$/, '');
+    const baseURL = process.env.AAPANEL_URL;
     const apiKey = process.env.AAPANEL_API_KEY;
 
+    if (!baseURL) throw new Error('AAPANEL_URL is not configured in .env');
+    if (!apiKey) throw new Error('AAPANEL_API_KEY is not configured in .env');
 
-    const url = baseURL + normalizeEndpoint(endpoint);
+    const url = baseURL.replace(/\/$/, '') + normalizeEndpoint(endpoint);
     const sig = sign(apiKey);
     const body = toForm({ ...sig, ...data });
 
