@@ -130,22 +130,38 @@ If you use **Cloudflare** for DNS, that's also supported — just use `--skipdns
 ## 🚀 Installation
 
 ```bash
-# Clone or download the project
-cd addwebsite
+# Clone the repository
+git clone https://github.com/Joshualeexy/Aapanel-server-automation.git
+
+# Navigate into the project directory
+cd Aapanel-server-automation
 
 # Install dependencies
 npm install
 
-# Install globally (optional)
+# Link the package globally (required for the `aapanel-deploy` command)
+npm link
+```
+
+After running `npm link`, you can use `aapanel-deploy` from anywhere on your system.
+
+---
 
 ## ⚙️ Configuration
 
 Copy the `.env.example` file to `.env` and edit it with your server details:
 
-# Server & admin (REQUIRED)
+```bash
+cp .env.example .env
+```
+
+Then configure the following values:
+
+```ini
+# Server (REQUIRED)
+AAPANEL_URL=https://panel.yourdomain.com:8888
+AAPANEL_API_KEY=your_api_key_here
 SERVER_PUBLIC_IP=123.45.67.89
-LE_EMAIL=admin@yourdomain.com
-ADMIN_TOKEN=000000
 
 # DNS defaults (for internal DNS Manager)
 DEFAULT_NS1=ns1.yourdomain.com
@@ -168,16 +184,33 @@ MAIL_MAX_MAILBOXES=50
 MAILBOX_QUOTA=500 MB
 ```
 
+### Understanding `AAPANEL_URL`
+
+> ⚠️ **Important**: Do NOT include the frontend gatepass in your URL!
+
+The `AAPANEL_URL` should be the **base URL** of your aaPanel installation, pointing directly to the API — not the web interface.
+
+| ❌ Wrong | ✅ Correct |
+|----------|-----------|
+| `https://panel.example.com:8888/a1b2c3d4` | `https://panel.example.com:8888` |
+| `https://panel.example.com:8888/mysecretpath` | `https://panel.example.com:8888` |
+
+The path after the port (e.g., `/a1b2c3d4`) is the **frontend gatepass** — a security entrance for the web UI. By default, aaPanel generates a **random string** for this path. Some users customize it to something memorable like `/apanel` or `/bt`, but regardless of what it is, **do not include it** in `AAPANEL_URL`. This tool communicates directly with the aaPanel API, so it only needs the base URL with the port.
+
 ### Finding Your aaPanel API Key
 
+For detailed instructions, see the [official aaPanel API documentation](https://www.aapanel.com/docs/api/api-list.html#turn-on-the-api-in-aapanel).
+
+**Quick steps:**
 1. Log into aaPanel
 2. Go to **Settings** → **API**
-3. Enable API and copy the key
+3. Enable the API interface
+4. Copy the generated API key — this is your `AAPANEL_API_KEY`
 
 ### Finding Provider IDs
 
-1. Go to **Domains**  → **Provider List**
-2. The ID is usually order of addition/integration shown next to each provider (usually Cloudflare=1 if added first)
+1. Go to **Domains** → **Provider List**
+2. The ID is the order of addition shown next to each provider (usually Cloudflare=1 if added first)
 
 ## 📖 Usage
 
